@@ -6,6 +6,9 @@ from flask_restful import Api, Resource
 
 from models import db, Article, User
 
+# Import abort function for error handling
+from flask import abort
+
 app = Flask(__name__)
 app.secret_key = b'Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -87,12 +90,29 @@ class CheckSession(Resource):
 class MemberOnlyIndex(Resource):
     
     def get(self):
-        pass
+        # Check if user is logged in
+        if not session.get('user_id'):
+            return {'error': 'Unauthorized access. Please log in.'}, 401
+
+        # Retrieve and return members-only articles
+        member_only_articles = [article.to_dict() for article in Article.query.filter_by(is_member_only=True).all()]
+        return make_response(jsonify(member_only_articles), 200)
 
 class MemberOnlyArticle(Resource):
     
     def get(self, id):
-        pass
+        # Check if user is logged in
+        if not session.get('user_id'):
+            return {'error': 'Unauthorized access. Please log in.'}, 401
+
+        # Retrieve the requested article
+        article = Article.query.filter_by(id=id, is_member_only=True).first()
+        if not article:
+            return {'error': 'Article not found or not available for non-members.'}, 404
+
+        # Return the article data
+        article_json = article.to_dict()
+        return make_response(jsonify(article_json), 200)
 
 api.add_resource(ClearSession, '/clear', endpoint='clear')
 api.add_resource(IndexArticle, '/articles', endpoint='article_list')
@@ -102,7 +122,6 @@ api.add_resource(Logout, '/logout', endpoint='logout')
 api.add_resource(CheckSession, '/check_session', endpoint='check_session')
 api.add_resource(MemberOnlyIndex, '/members_only_articles', endpoint='member_index')
 api.add_resource(MemberOnlyArticle, '/members_only_articles/<int:id>', endpoint='member_article')
-
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
