@@ -90,29 +90,45 @@ class CheckSession(Resource):
 class MemberOnlyIndex(Resource):
     
     def get(self):
-        # Check if user is logged in
+         # Check if user is logged in
         if not session.get('user_id'):
             return {'error': 'Unauthorized access. Please log in.'}, 401
 
-        # Retrieve and return members-only articles
+       # Retrieve and return members-only articles
+       
         member_only_articles = [article.to_dict() for article in Article.query.filter_by(is_member_only=True).all()]
         return make_response(jsonify(member_only_articles), 200)
+
+# class MemberOnlyArticle(Resource):
+    
+#     def get(self, id):
+#          # Check if user is logged in
+#         if not session.get('user_id'):
+#              return {'error': 'Unauthorized access. Please log in.'}, 401
+
+#          # Retrieve the requested article
+#         article = Article.query.filter_by(id=id, is_member_only=True).first()
+#         if not article:
+#            return {'error': 'Article not found or not available for non-members.'}, 404
+
+#         # Return the article data
+#         article_json = article.to_dict()
+#         return make_response(jsonify(article_json), 200)
+
 
 class MemberOnlyArticle(Resource):
     
     def get(self, id):
-        # Check if user is logged in
         if not session.get('user_id'):
-            return {'error': 'Unauthorized access. Please log in.'}, 401
-
-        # Retrieve the requested article
-        article = Article.query.filter_by(id=id, is_member_only=True).first()
-        if not article:
-            return {'error': 'Article not found or not available for non-members.'}, 404
-
-        # Return the article data
-        article_json = article.to_dict()
-        return make_response(jsonify(article_json), 200)
+            return {'message': 'Unauthorized'}, 401
+        else:
+            article = db.session.get(Article, id)
+            if not article or not article.is_member_only:
+                return {'message': 'Article not found'}, 404
+            else:
+                article_json = article.to_dict()
+                return make_response(jsonify(article_json), 200)
+        
 
 api.add_resource(ClearSession, '/clear', endpoint='clear')
 api.add_resource(IndexArticle, '/articles', endpoint='article_list')
