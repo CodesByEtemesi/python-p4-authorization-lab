@@ -123,11 +123,22 @@ class MemberOnlyArticle(Resource):
             return {'message': 'Unauthorized'}, 401
         else:
             article = db.session.get(Article, id)
-            if not article or not article.is_member_only:
-                return {'message': 'Article not found'}, 404
-            else:
-                article_json = article.to_dict()
-                return make_response(jsonify(article_json), 200)
+            article_json = article.to_dict()
+            return make_response(jsonify(article_json), 200)
+
+
+# class MemberOnlyArticle(Resource):
+    
+#     def get(self, id):
+#         if not session.get('user_id'):
+#             return {'message': 'Unauthorized'}, 401
+#         else:
+#             article = db.session.get(Article, id)
+#             if not article or not article.is_member_only:
+#                 return {'message': 'Article not found'}, 404
+#             else:
+#                 article_json = article.to_dict()
+#                 return make_response(jsonify(article_json), 200)
         
 
 api.add_resource(ClearSession, '/clear', endpoint='clear')
