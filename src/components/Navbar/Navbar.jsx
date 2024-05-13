@@ -66,8 +66,10 @@ const Navbar = () => {
                                         <a 
                                         href={data.link}
                                         className='inline-block px-4 font-semibold text-gray-500 hover:text-black dark:hover:text-white duration-200'
-
-                                        > {data.name}</a>
+                                        >
+                                            {" "}
+                                            {data.name}
+                                        </a>
                                     </li>
                                 ))}
                                 {/* Dropdown  */}
@@ -89,7 +91,7 @@ const Navbar = () => {
                                                         className='text-gray-500 dark:hover:text-white duration-200 inline-block w-full p-2 hover:bg-primary/20 rounded-md font-semibold'
                                                         href={data.link}> {data.name}</a>
 
-                                                    </li>
+                                                    </li> 
                                                 ))
                                             }
                                         </ul>
